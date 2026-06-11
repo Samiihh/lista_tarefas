@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 // antes de utilizar Authentication,
 // Realtime Database, Firestore, etc.
 import 'package:firebase_core/firebase_core.dart';
+import 'package:lista_tarefas/telas/tela_cadastro.dart';
 
 // Arquivo gerado automaticamente pelo FlutterFire
 //
@@ -139,6 +140,8 @@ class AppTarefas extends StatelessWidget {
       routes: {
         // Rota da tela de login
         '/login': (context) => const TelaLogin(),
+        // Rota da Tela de cadastro
+        '/cadastro': (context) => const TelaCadastro(),
       },
     );
   }
