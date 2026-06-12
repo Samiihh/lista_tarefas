@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lista_tarefas/models/tarefas.dart';
 import 'package:lista_tarefas/servicos/auth_service.dart';
 import 'package:lista_tarefas/servicos/db_service.dart';
 
@@ -121,9 +122,40 @@ class _TelaTarefasState extends State<TelaTarefas> {
 
           final tarefas = snapshot.data ?? [];
 
+          if (tarefas.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
 
-          if(tarefas.isEmpty) {
-            return Center (child: );
+                children: [
+                  Icon(
+                    Icons.playlist_add_check_circle_outlined,
+                    size: 90,
+                    color: Colors.deepPurple.withOpacity(0.8),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    'Nenhuma Tarefa ainda',
+
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  const Text(
+                    'Clique no botão + para criar sua primeira tarefa.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white60, fontSize: 15),
+                  ),
+                ],
+              ),
+            );
           }
         },
       ),
