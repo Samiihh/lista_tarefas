@@ -1,0 +1,132 @@
+import 'package:flutter/material.dart';
+import 'package:lista_tarefas/servicos/auth_service.dart';
+import 'package:lista_tarefas/servicos/db_service.dart';
+
+class TelaTarefas extends StatefulWidget {
+  const TelaTarefas({super.key});
+
+  @override
+  State<TelaTarefas> createState() => _TelaTarefasState();
+}
+
+class _TelaTarefasState extends State<TelaTarefas> {
+  final DbService _dbService = DbService();
+  final AuthService _authService = AuthService();
+
+  void _mostrarModalNovaTarefa() {
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1e1e1e),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+
+        title: const Text(
+          'Nova Tarefa',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+
+          decoration: InputDecoration(
+            hintText: 'O que você precisa fazer?',
+            hintStyle: const TextStyle(color: Colors.white54),
+            prefixIcon: const Icon(Icons.task_alt, color: Colors.deepPurple),
+
+            filled: true,
+            fillColor: const Color(0xFF2a2a2a),
+
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                _dbService.criarTarefa(controller.text.trim());
+
+                Navigator.pop(context);
+              }
+            },
+
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF121212),
+      appBar: AppBar(
+        title: const Text(
+          'Minhas Tarefas',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white54),
+        ),
+
+        centerTitle: true,
+
+        backgroundColor: Colors.transparent,
+
+        elevation: 0,
+
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.exit_to_app, color: Colors.white70),
+            onPressed: () async {
+              await _authService.logout();
+
+              if (mounted) {
+                Navigator.pushReplacementNamed(context, '/login');
+              }
+            },
+          ),
+        ],
+      ),
+
+      body: StreamBuilder<List<Tarefa>>(
+        stream: _dbService.lerTarefas(),
+
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.deepPurple),
+            );
+          }
+
+          final tarefas = snapshot.data ?? [];
+
+
+          if(tarefas.isEmpty) {
+            return Center (child: );
+          }
+        },
+      ),
+    );
+  }
+}

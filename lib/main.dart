@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 // Realtime Database, Firestore, etc.
 import 'package:firebase_core/firebase_core.dart';
 import 'package:lista_tarefas/telas/tela_cadastro.dart';
+import 'package:lista_tarefas/telas/tela_tarefas.dart';
+
 
 // Arquivo gerado automaticamente pelo FlutterFire
 //
@@ -142,6 +144,8 @@ class AppTarefas extends StatelessWidget {
         '/login': (context) => const TelaLogin(),
         // Rota da Tela de cadastro
         '/cadastro': (context) => const TelaCadastro(),
+        //Rota da tela de tarefas
+        '/tarefas': (context) => const TelaTarefas(),
       },
     );
   }
