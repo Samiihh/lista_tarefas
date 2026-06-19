@@ -25,10 +25,6 @@
 //         titulo, concluida, imagemBase64, dataFinalizacao,
 //         horaLembrete, minutoLembrete, latitude, longitude, nfcTag
 
-import 'dart:nativewrappers/_internal/vm/lib/ffi_native_type_patch.dart';
-
-import 'package:nfc_manager/nfc_manager.dart';
-
 class Tarefa {
 
   // ID único da tarefa
@@ -45,30 +41,18 @@ class Tarefa {
   // Ao marcar true → tela_tarefas dispara notificação de conclusão
   bool concluida;
 
-  // Foto convertida para texto base64
-  String? imageBase64;
-
-  String? dataFinalizacao;
-
-  // armazernar  hora e  minuto
-  int? horaLembrete;
-  int? minutoLembrete;
-
-  double? latitude;
-  double? longitude;
-
-  String? nfcTag;
+ 
   // ===========================================================================
   // CAMPOS OPCIONAIS — preenchidos conforme o usuário usa recursos nativos
   // String?, int?, double? → o "?" significa que pode ser null (vazio)
   // ===========================================================================
 
-  // --- Aula 3: Imagem (câmera / galeria) ---
+  // Imagem (câmera / galeria) ---
   // Foto comprimida em texto base64 — salva direto no Firebase (sem Storage)
   // Usado em: preview na tela_detalhe, miniatura na tela_tarefas
   String? imagemBase64;
 
-  // --- Aula 5: Data e lembrete ---
+  // Data e lembrete ---
   // Prazo no formato ISO: "2026-06-25" (facilita DateTime.tryParse)
   // Usado em: DatePicker na tela_detalhe, texto "Prazo:" na lista
   String? dataFinalizacao;
@@ -78,13 +62,13 @@ class Tarefa {
   int? horaLembrete;
   int? minutoLembrete;
 
-  // --- Aula 6: Localização (GPS + mapa) ---
+  // Localização (GPS + mapa) ---
   // Coordenadas lidas pelo geolocator — exibidas no flutter_map (OpenStreetMap)
   // Usado em: MapaTarefaWidget, botão "Ver mapa" na lista
   double? latitude;
   double? longitude;
 
-  // --- Aula 7: NFC ---
+  // NFC ---
   // Texto lido da tag NFC — associado à tarefa
   // Usado em: botão "Ler tag NFC" na tela_detalhe, ícone na lista
   String? nfcTag;
@@ -173,14 +157,6 @@ class Tarefa {
       latitude: _parseDouble(json['latitude']),
       longitude: _parseDouble(json['longitude']),
       nfcTag: json['nfcTag'] as String?,
-
-      imageBase64: json['imageBase64'] as String?,
-      dataFinalizacao: json['dataFinalizacao'] as String?,
-      horaLembrete: _parseInt(json['horaLembrete']),
-      minutoLembrete: _parseInt(json['minutoLembrete']),
-      latitude: _parseDouble(json['latitude']),
-      longitude: _parseDouble(json['longitude']),
-      nfcTag: json['nfcTag'] as String?,
     );
   }
 
@@ -217,19 +193,19 @@ class Tarefa {
       'titulo': titulo,
       'concluida': concluida,
 
-      // Aula 3
+    
       if (temImagem) 'imagemBase64': imagemBase64,
 
-      // Aula 5 — data e horário do lembrete vão juntos
+      // data e horário do lembrete vão juntos
       if (temDataFinalizacao) 'dataFinalizacao': dataFinalizacao,
       if (temDataFinalizacao) 'horaLembrete': horaLembreteEfetiva,
       if (temDataFinalizacao) 'minutoLembrete': minutoLembreteEfetivo,
 
-      // Aula 6
+    
       if (temLocalizacao) 'latitude': latitude,
       if (temLocalizacao) 'longitude': longitude,
 
-      // Aula 7
+    
       if (temNfc) 'nfcTag': nfcTag,
     };
   }
