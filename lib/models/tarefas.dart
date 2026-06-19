@@ -25,12 +25,17 @@
 //         titulo, concluida, imagemBase64, dataFinalizacao,
 //         horaLembrete, minutoLembrete, latitude, longitude, nfcTag
 
-class Tarefa {
-  // ===========================================================================
-  // CAMPOS OBRIGATÓRIOS — toda tarefa tem estes três
-  // ===========================================================================
+import 'dart:nativewrappers/_internal/vm/lib/ffi_native_type_patch.dart';
 
-  // ID gerado pelo Firebase (push) — usado para editar, deletar e agendar lembrete
+import 'package:nfc_manager/nfc_manager.dart';
+
+class Tarefa {
+
+  // ID único da tarefa
+  // Esse ID normalmente vem do Firebase automaticamente.
+  //
+  // Exemplo:
+  // -Oabc123XYZ
   String id;
 
   // Nome da tarefa digitado pelo usuário
@@ -40,6 +45,19 @@ class Tarefa {
   // Ao marcar true → tela_tarefas dispara notificação de conclusão
   bool concluida;
 
+  // Foto convertida para texto base64
+  String? imageBase64;
+
+  String? dataFinalizacao;
+
+  // armazernar  hora e  minuto
+  int? horaLembrete;
+  int? minutoLembrete;
+
+  double? latitude;
+  double? longitude;
+
+  String? nfcTag;
   // ===========================================================================
   // CAMPOS OPCIONAIS — preenchidos conforme o usuário usa recursos nativos
   // String?, int?, double? → o "?" significa que pode ser null (vazio)
@@ -149,6 +167,14 @@ class Tarefa {
       titulo: json['titulo'] ?? '',
       concluida: json['concluida'] ?? false,
       imagemBase64: json['imagemBase64'] as String?,
+      dataFinalizacao: json['dataFinalizacao'] as String?,
+      horaLembrete: _parseInt(json['horaLembrete']),
+      minutoLembrete: _parseInt(json['minutoLembrete']),
+      latitude: _parseDouble(json['latitude']),
+      longitude: _parseDouble(json['longitude']),
+      nfcTag: json['nfcTag'] as String?,
+
+      imageBase64: json['imageBase64'] as String?,
       dataFinalizacao: json['dataFinalizacao'] as String?,
       horaLembrete: _parseInt(json['horaLembrete']),
       minutoLembrete: _parseInt(json['minutoLembrete']),
