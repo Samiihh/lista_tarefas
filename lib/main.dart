@@ -6,14 +6,13 @@
 // - Widgets básicos
 import 'package:flutter/material.dart';
 
+
 // Importa o núcleo do Firebase
 //
 // Necessário para inicializar o Firebase
 // antes de utilizar Authentication,
 // Realtime Database, Firestore, etc.
 import 'package:firebase_core/firebase_core.dart';
-import 'package:lista_tarefas/telas/tela_cadastro.dart';
-import 'package:lista_tarefas/telas/tela_tarefas.dart';
 
 
 // Arquivo gerado automaticamente pelo FlutterFire
@@ -26,8 +25,12 @@ import 'package:lista_tarefas/telas/tela_tarefas.dart';
 // - Configurações Android/Web/iOS
 import 'firebase_options.dart';
 
+
 // Importa as telas do sistema
 import 'telas/tela_login.dart';
+import 'telas/tela_cadastro.dart';
+import 'telas/tela_tarefas.dart';
+
 
 // Importa o serviço de autenticação
 //
@@ -35,12 +38,14 @@ import 'telas/tela_login.dart';
 // se existe um usuário logado.
 import 'servicos/auth_service.dart';
 
+
 // ======================================================
 // FUNÇÃO PRINCIPAL DO APP
 // ======================================================
 //
 // Todo aplicativo Flutter começa aqui.
 void main() async {
+
   // Garante que o Flutter seja inicializado
   // antes de executar código assíncrono.
   //
@@ -54,6 +59,7 @@ void main() async {
   //
   // Sem essa linha o Firebase não funciona.
   await Firebase.initializeApp(
+
     // Configura automaticamente a plataforma atual
     //
     // Android -> usa configuração Android
@@ -66,6 +72,7 @@ void main() async {
   runApp(const AppTarefas());
 }
 
+
 // ======================================================
 // WIDGET PRINCIPAL DO SISTEMA
 // ======================================================
@@ -75,18 +82,21 @@ void main() async {
 // Utilizado quando o widget não precisa
 // atualizar informações internamente.
 class AppTarefas extends StatelessWidget {
+
   // Construtor da classe
   const AppTarefas({super.key});
 
   @override
   Widget build(BuildContext context) {
+
     // Verifica se existe usuário autenticado
     //
     // usuarioAtual retorna:
     //
     // User -> existe usuário logado
     // null -> ninguém logado
-    final usuarioLogado = AuthService().usuarioAtual != null;
+    final usuarioLogado =
+        AuthService().usuarioAtual != null;
 
     // MaterialApp:
     //
@@ -97,6 +107,7 @@ class AppTarefas extends StatelessWidget {
     // - Navegação
     // - Configurações globais
     return MaterialApp(
+
       // Nome do aplicativo
       title: 'App de Tarefas',
 
@@ -104,6 +115,7 @@ class AppTarefas extends StatelessWidget {
       //
       // Todas as telas herdarão esse tema
       theme: ThemeData(
+
         // Cor principal do aplicativo
         primarySwatch: Colors.blue,
       ),
@@ -132,7 +144,13 @@ class AppTarefas extends StatelessWidget {
       // Caso contrário:
       //
       // abre a tela de login
-      initialRoute: usuarioLogado ? '/tarefas' : '/login',
+      initialRoute:
+
+          usuarioLogado
+
+              ? '/tarefas'
+
+              : '/login',
 
       // ==================================================
       // ROTAS DO SISTEMA
@@ -140,12 +158,18 @@ class AppTarefas extends StatelessWidget {
       //
       // Mapa contendo todas as páginas.
       routes: {
+
         // Rota da tela de login
-        '/login': (context) => const TelaLogin(),
-        // Rota da Tela de cadastro
-        '/cadastro': (context) => const TelaCadastro(),
-        //Rota da tela de tarefas
-        '/tarefas': (context) => const TelaTarefas(),
+        '/login': (context) =>
+            const TelaLogin(),
+
+        // Rota da tela de cadastro
+        '/cadastro': (context) =>
+            const TelaCadastro(),
+
+        // Rota da tela principal de tarefas
+        '/tarefas': (context) =>
+            const TelaTarefas(),
       },
     );
   }
