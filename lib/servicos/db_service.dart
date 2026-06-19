@@ -17,6 +17,7 @@ import '../models/tarefas.dart';
 // Precisamos dele para descobrir qual usuário está logado.
 import 'auth_service.dart';
 
+
 // Classe responsável por todas as operações
 // relacionadas ao banco de dados.
 //
@@ -27,6 +28,7 @@ import 'auth_service.dart';
 // U = Update (Atualizar)
 // D = Delete (Excluir)
 class DbService {
+
   // Cria uma referência para a raiz do Firebase
   //
   // Exemplo:
@@ -41,6 +43,7 @@ class DbService {
   // qual usuário está logado.
   final AuthService _auth = AuthService();
 
+
   // Getter privado responsável por retornar
   // a pasta correta das tarefas do usuário.
   //
@@ -53,6 +56,7 @@ class DbService {
   //
   // Cada usuário possui sua própria pasta.
   DatabaseReference get _tarefasRef {
+
     // Obtém o UID do usuário logado
     //
     // Exemplo:
@@ -61,6 +65,7 @@ class DbService {
 
     // Verifica se existe usuário autenticado
     if (uid == null) {
+
       throw Exception('Usuário não logado');
     }
 
@@ -68,11 +73,14 @@ class DbService {
     //
     // tarefas/UID_DO_USUARIO
     return _db
+
         // Entra na pasta "tarefas"
         .child('tarefas')
+
         // Entra na pasta do usuário atual
         .child(uid);
   }
+
 
   // ===================================================
   // CREATE (POST)
@@ -80,9 +88,11 @@ class DbService {
   //
   // Responsável por criar uma nova tarefa
   Future<void> criarTarefa(
+
     // Título digitado pelo usuário
     String titulo,
   ) async {
+
     // push():
     //
     // Cria uma nova referência com ID automático
@@ -97,6 +107,7 @@ class DbService {
 
     // Salva os dados no Firebase
     await novaTarefaRef.set({
+
       // Título da tarefa
       'titulo': titulo,
 
@@ -105,6 +116,7 @@ class DbService {
       'concluida': false,
     });
   }
+
 
   // ===================================================
   // READ (GET)
@@ -118,10 +130,12 @@ class DbService {
   // Sempre que o Firebase muda,
   // a interface atualiza automaticamente.
   Stream<List<Tarefa>> lerTarefas() {
+
     // onValue:
     //
     // Escuta mudanças em tempo real
     return _tarefasRef.onValue.map((event) {
+
       // Obtém os dados vindos do Firebase
       //
       // Exemplo:
@@ -141,19 +155,23 @@ class DbService {
       // Converte cada registro do Firebase
       // para um objeto Tarefa
       return map.entries.map((e) {
+
         // e.key = ID da tarefa
         //
         // e.value = dados da tarefa
         return Tarefa.fromJson(
+
           // Dados da tarefa
           e.value,
 
           // ID da tarefa
           e.key,
         );
+
       }).toList();
     });
   }
+
 
   // ===================================================
   // UPDATE (PUT / PATCH)
@@ -165,18 +183,26 @@ class DbService {
   // false -> true
   // true -> false
   Future<void> atualizarStatus(
+
     // ID da tarefa
     String id,
 
     // Novo status
     bool concluida,
   ) async {
+
     // Localiza a tarefa pelo ID
-    await _tarefasRef.child(id).update({
-      // Atualiza apenas o campo concluida
-      'concluida': concluida,
-    });
+    await _tarefasRef
+
+        .child(id)
+
+        .update({
+
+          // Atualiza apenas o campo concluida
+          'concluida': concluida,
+        });
   }
+
 
   // ===================================================
   // DELETE
@@ -184,12 +210,16 @@ class DbService {
   //
   // Remove uma tarefa do Firebase
   Future<void> deletarTarefa(
+
     // ID da tarefa a ser removida
     String id,
   ) async {
+
     // Localiza a tarefa pelo ID
     await _tarefasRef
+
         .child(id)
+
         // Remove completamente do banco
         .remove();
   }
