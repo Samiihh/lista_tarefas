@@ -147,7 +147,6 @@ class _TelaTarefasState extends State<TelaTarefas> {
                   ),
 
                   const SizedBox(height: 8),
-
                   const Text(
                     'Clique no botão + para criar sua primeira tarefa.',
                     textAlign: TextAlign.center,
@@ -157,7 +156,81 @@ class _TelaTarefasState extends State<TelaTarefas> {
               ),
             );
           }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+
+            itemCount: tarefas.length,
+
+            itemBuilder: (context, index) {
+              final tarefa = tarefas[index];
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1e1e1e),
+                  borderRadius: BorderRadius.circular(18),
+
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+
+                  leading: Checkbox(
+                    value: tarefa.concluida,
+                    activeColor: Colors.deepPurple,
+                    onChanged: (valor) {
+                      _dbService.atualizarStatus(tarefa.id, valor!);
+                    },
+                  ),
+
+                  title: Text(
+                    tarefa.titulo,
+                    style: TextStyle(
+                      decoration: tarefa.concluida
+                          ? TextDecoration.lineThrough
+                          : null,
+
+                      color: tarefa.concluida ? Colors.white38 : Colors.white,
+
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+
+                  trailing: IconButton(
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.redAccent,
+                    ),
+
+                    onPressed: () => _dbService.deletarTarefa(tarefa.id),
+                  ),
+                ),
+              );
+            },
+          );
         },
+      ),
+
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _mostrarModalNovaTarefa,
+        backgroundColor: Colors.deepPurple,
+        icon: const Icon(Icons.add),
+        foregroundColor: Colors.white,
+
+        label: const Text('Nova Tarefa'),
       ),
     );
   }
