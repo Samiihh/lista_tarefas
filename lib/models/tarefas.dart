@@ -5,6 +5,7 @@
 // No Flutter, usamos models para organizar os dados da aplicação.
 // Essa classe representa como uma tarefa será armazenada e manipulada.
 class Tarefa {
+
   // ID único da tarefa
   // Esse ID normalmente vem do Firebase automaticamente.
   //
@@ -22,6 +23,7 @@ class Tarefa {
   // false = tarefa pendente
   bool concluida;
 
+
   // Construtor da classe Tarefa
   //
   // required:
@@ -29,7 +31,15 @@ class Tarefa {
   //
   // this.concluida = false
   // define um valor padrão caso nenhum valor seja informado.
-  Tarefa({required this.id, required this.titulo, this.concluida = false});
+  Tarefa({
+
+    required this.id,
+
+    required this.titulo,
+
+    this.concluida = false,
+  });
+
 
   // factory:
   // Construtor especial usado para criar objetos
@@ -45,6 +55,7 @@ class Tarefa {
   // JSON:
   // formato de dados muito utilizado em APIs e bancos NoSQL.
   factory Tarefa.fromJson(
+
     // json:
     // dados vindos do Firebase
     Map<dynamic, dynamic> json,
@@ -52,8 +63,10 @@ class Tarefa {
     // id da tarefa no Firebase
     String id,
   ) {
+
     // Retorna um novo objeto Tarefa
     return Tarefa(
+
       // ID recebido do Firebase
       id: id,
 
@@ -71,12 +84,14 @@ class Tarefa {
     );
   }
 
+
   // Método responsável por converter
   // o objeto Tarefa para JSON.
   //
   // Isso é usado para enviar os dados
   // para o Firebase.
   Map<String, dynamic> toJson() {
+
     // Retorna um Map
     //
     // Map:
@@ -85,6 +100,7 @@ class Tarefa {
     // Exemplo:
     // "titulo": "Estudar Flutter"
     return {
+
       // Campo titulo
       'titulo': titulo,
 
