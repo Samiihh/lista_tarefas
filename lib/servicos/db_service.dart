@@ -1,232 +1,226 @@
-// Importa a biblioteca async do Dart
-//
-// Essa biblioteca fornece recursos para:
-// - Future
-// - async/await
-// - TimeoutException
-import 'dart:async';
-
-
-// Importa o Firebase Authentication
+// Importa o pacote do Firebase Realtime Database
 //
 // Responsável por:
-// - login
-// - cadastro
-// - logout
-// - controle de usuário autenticado
-import 'package:firebase_auth/firebase_auth.dart';
+// - criar dados
+// - ler dados
+// - atualizar dados
+// - remover dados
+import 'package:firebase_database/firebase_database.dart';
 
-
-// Classe responsável pelos serviços de autenticação
+// Importa o model Tarefa
 //
-// Aqui centralizamos toda lógica de login/cadastro/logout
-// deixando o código mais organizado.
-class AuthService {
+// Esse model representa uma tarefa dentro do aplicativo.
+import '../models/tarefas.dart';
 
-  // Cria uma instância do Firebase Authentication
+// Importa o serviço de autenticação
+//
+// Precisamos dele para descobrir qual usuário está logado.
+import 'auth_service.dart';
+
+
+// Classe responsável por todas as operações
+// relacionadas ao banco de dados.
+//
+// Aqui centralizamos o CRUD:
+//
+// C = Create (Criar)
+// R = Read (Ler)
+// U = Update (Atualizar)
+// D = Delete (Excluir)
+class DbService {
+
+  // Cria uma referência para a raiz do Firebase
   //
-  // FirebaseAuth.instance:
-  // acessa a instância principal do Firebase Auth
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // Exemplo:
+  // Firebase
+  // ├── tarefas
+  // └── usuarios
+  final DatabaseReference _db = FirebaseDatabase.instance.ref();
 
-
-  // Getter:
-  // Retorna o usuário atual autenticado.
+  // Instância do serviço de autenticação
   //
-  // User?:
-  // significa que o retorno pode ser:
-  // - um usuário
-  // - ou null
+  // Será utilizada para descobrir
+  // qual usuário está logado.
+  final AuthService _auth = AuthService();
+
+
+  // Getter privado responsável por retornar
+  // a pasta correta das tarefas do usuário.
   //
-  // null = ninguém logado
-  User? get usuarioAtual => _auth.currentUser;
-
-
-  // Função responsável por cadastrar usuário
+  // Exemplo:
   //
-  // Future:
-  // indica que é uma operação assíncrona.
+  // tarefas/
+  //    UID_123/
+  //       tarefa1
+  //       tarefa2
   //
-  // UserCredential:
-  // objeto retornado pelo Firebase após autenticação.
-  Future<UserCredential> cadastrar(
+  // Cada usuário possui sua própria pasta.
+  DatabaseReference get _tarefasRef {
 
-    // E-mail digitado pelo usuário
-    String email,
+    // Obtém o UID do usuário logado
+    //
+    // Exemplo:
+    // "aBc123XyZ"
+    final uid = _auth.usuarioAtual?.uid;
 
-    // Senha digitada pelo usuário
-    String senha,
+    // Verifica se existe usuário autenticado
+    if (uid == null) {
+
+      throw Exception('Usuário não logado');
+    }
+
+    // Retorna a referência:
+    //
+    // tarefas/UID_DO_USUARIO
+    return _db
+
+        // Entra na pasta "tarefas"
+        .child('tarefas')
+
+        // Entra na pasta do usuário atual
+        .child(uid);
+  }
+
+
+  // ===================================================
+  // CREATE (POST)
+  // ===================================================
+  //
+  // Responsável por criar uma nova tarefa
+  Future<void> criarTarefa(
+
+    // Título digitado pelo usuário
+    String titulo,
   ) async {
 
-    try {
+    // push():
+    //
+    // Cria uma nova referência com ID automático
+    //
+    // Exemplo:
+    //
+    // -Oabc123XYZ
+    // -Oabc456ABC
+    //
+    // Isso evita sobrescrever registros existentes.
+    final novaTarefaRef = _tarefasRef.push();
 
-      // createUserWithEmailAndPassword:
-      // cria usuário no Firebase Authentication
-      return await _auth
+    // Salva os dados no Firebase
+    await novaTarefaRef.set({
 
-          .createUserWithEmailAndPassword(
+      // Título da tarefa
+      'titulo': titulo,
 
-            // E-mail enviado para o Firebase
-            email: email,
-
-            // Senha enviada para o Firebase
-            password: senha,
-          )
-
-          // timeout:
-          // define um tempo máximo para a operação
-          //
-          // Se passar de 20 segundos:
-          // dispara TimeoutException
-          .timeout(const Duration(seconds: 20));
-
-
-
-    // Captura erros específicos do Firebase Authentication
-    } on FirebaseAuthException catch (e) {
-
-      // Lança uma Exception personalizada
-      // usando mensagens mais amigáveis
-      throw Exception(_mensagemErroAuth(e));
-
-
-    // Captura erro de tempo excedido
-    } on TimeoutException {
-
-      throw Exception(
-
-        'Tempo esgotado. Verifique sua internet e tente novamente.',
-      );
-
-
-    // Captura qualquer outro erro inesperado
-    } catch (e) {
-
-      throw Exception('Erro ao cadastrar: $e');
-    }
+      // Status inicial
+      // Toda tarefa nasce como não concluída
+      'concluida': false,
+    });
   }
 
 
-  // Função responsável pelo login
-  Future<UserCredential> login(
-
-    // E-mail do usuário
-    String email,
-
-    // Senha do usuário
-    String senha,
-  ) async {
-
-    try {
-
-      // signInWithEmailAndPassword:
-      // faz login no Firebase Authentication
-      return await _auth
-
-          .signInWithEmailAndPassword(
-
-            // E-mail enviado
-            email: email,
-
-            // Senha enviada
-            password: senha,
-          )
-
-          // Limite máximo de tempo
-          .timeout(const Duration(seconds: 20));
-
-
-
-    // Captura erros específicos do Firebase
-    } on FirebaseAuthException catch (e) {
-
-      // Converte o erro técnico
-      // para uma mensagem amigável
-      throw Exception(_mensagemErroAuth(e));
-
-
-    // Captura timeout
-    } on TimeoutException {
-
-      throw Exception(
-
-        'Tempo esgotado. Verifique sua internet e tente novamente.',
-      );
-
-
-    // Captura erros genéricos
-    } catch (e) {
-
-      throw Exception('Erro ao fazer login: $e');
-    }
-  }
-
-
-  // Função responsável pelo logout
-  Future<void> logout() async {
-
-    // signOut:
-    // desconecta o usuário atual do Firebase
-    await _auth.signOut();
-  }
-
-
-  // Função privada responsável por traduzir
-  // os erros técnicos do Firebase
+  // ===================================================
+  // READ (GET)
+  // ===================================================
   //
-  // _ no início:
-  // significa que a função é privada
-  // e só pode ser usada dentro desta classe.
-  String _mensagemErroAuth(
+  // Retorna um Stream de tarefas.
+  //
+  // Stream:
+  // permite receber atualizações em tempo real.
+  //
+  // Sempre que o Firebase muda,
+  // a interface atualiza automaticamente.
+  Stream<List<Tarefa>> lerTarefas() {
 
-    // Objeto de erro vindo do Firebase
-    FirebaseAuthException erro,
-  ) {
+    // onValue:
+    //
+    // Escuta mudanças em tempo real
+    return _tarefasRef.onValue.map((event) {
 
-    // switch:
-    // verifica qual foi o código do erro
-    switch (erro.code) {
+      // Obtém os dados vindos do Firebase
+      //
+      // Exemplo:
+      //
+      // {
+      //   "-abc123": {
+      //      "titulo":"Estudar",
+      //      "concluida":false
+      //   }
+      // }
+      final map = event.snapshot.value as Map<dynamic, dynamic>?;
 
+      // Se não existir nenhuma tarefa
+      // retorna uma lista vazia
+      if (map == null) return [];
 
-      // E-mail já cadastrado
-      case 'email-already-in-use':
+      // Converte cada registro do Firebase
+      // para um objeto Tarefa
+      return map.entries.map((e) {
 
-        return 'Este e-mail ja esta cadastrado.';
-
-
-      // E-mail inválido
-      case 'invalid-email':
-
-        return 'Digite um e-mail valido.';
-
-
-      // Senha fraca
-      case 'weak-password':
-
-        return 'A senha precisa ter pelo menos 6 caracteres.';
-
-
-      // Problema de conexão
-      case 'network-request-failed':
-
-        return 'Falha de conexao. Verifique sua internet.';
-
-
-      // Método de autenticação desabilitado no Firebase
-      case 'operation-not-allowed':
-
-        return 'Cadastro por e-mail e senha nao esta habilitado no Firebase.';
-
-
-      // Qualquer outro erro
-      default:
-
-        // erro.message:
-        // mensagem original do Firebase
+        // e.key = ID da tarefa
         //
-        // ??:
-        // se vier null, usa a mensagem padrão
-        return erro.message ?? 'Erro de autenticacao.';
-    }
+        // e.value = dados da tarefa
+        return Tarefa.fromJson(
+
+          // Dados da tarefa
+          e.value,
+
+          // ID da tarefa
+          e.key,
+        );
+
+      }).toList();
+    });
+  }
+
+
+  // ===================================================
+  // UPDATE (PUT / PATCH)
+  // ===================================================
+  //
+  // Atualiza o status da tarefa
+  //
+  // Exemplo:
+  // false -> true
+  // true -> false
+  Future<void> atualizarStatus(
+
+    // ID da tarefa
+    String id,
+
+    // Novo status
+    bool concluida,
+  ) async {
+
+    // Localiza a tarefa pelo ID
+    await _tarefasRef
+
+        .child(id)
+
+        .update({
+
+          // Atualiza apenas o campo concluida
+          'concluida': concluida,
+        });
+  }
+
+
+  // ===================================================
+  // DELETE
+  // ===================================================
+  //
+  // Remove uma tarefa do Firebase
+  Future<void> deletarTarefa(
+
+    // ID da tarefa a ser removida
+    String id,
+  ) async {
+
+    // Localiza a tarefa pelo ID
+    await _tarefasRef
+
+        .child(id)
+
+        // Remove completamente do banco
+        .remove();
   }
 }
